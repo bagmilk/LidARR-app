@@ -1,0 +1,187 @@
+{
+  "screens": [
+    {
+      "id": "auth",
+      "route": "/auth",
+      "title": "Auth",
+      "purpose": "Create account or continue with Google",
+      "layout": {"container": "desktop", "grid": 12},
+      "components": [
+        {"type": "logo", "id": "brand", "col": 2, "span": 2, "y": 24},
+        {"type": "heading", "id": "h1", "text": "Sign in", "col": 5, "span": 4, "y": 120},
+        {"type": "button", "id": "google", "variant": "primary", "icon": "google", "text": "Continue with Google", "col": 5, "span": 4, "y": 170, "action": "/new-project"},
+        {"type": "divider", "id": "or", "text": "or", "col": 5, "span": 4, "y": 230},
+        {"type": "input", "id": "email", "label": "Work email", "col": 5, "span": 4, "y": 260},
+        {"type": "input", "id": "password", "label": "Password", "col": 5, "span": 4, "y": 312},
+        {"type": "button", "id": "create", "variant": "brand", "text": "Create account", "col": 5, "span": 4, "y": 364, "action": "/new-project"}
+      ],
+      "states": {
+        "error.auth": {"banner": "Google sign‑in failed. Try again or use email."}
+      }
+    },
+
+    {
+      "id": "new_project",
+      "route": "/new-project",
+      "title": "New Project",
+      "purpose": "Choose scan method and confirm address",
+      "layout": {"container": "desktop", "grid": 12},
+      "components": [
+        {"type": "heading", "id": "h1", "text": "New Project", "col": 2, "span": 8, "y": 80},
+        {"type": "button", "id": "scan_lidar", "variant": "brand", "text": "Scan with LiDAR", "col": 2, "span": 4, "y": 140, "action": "/capture"},
+        {"type": "button", "id": "upload_scan", "variant": "secondary", "text": "Upload a scan", "col": 6, "span": 4, "y": 140, "action": "/upload"},
+        {"type": "toggle", "id": "allow_location", "label": "Use my location to fill address", "col": 2, "span": 8, "y": 210},
+        {"type": "address_autocomplete", "id": "address", "label": "Property address", "col": 2, "span": 8, "y": 250},
+        {"type": "chips", "id": "jurisdiction", "items": ["City", "County", "State"], "source": "lookup(address)", "col": 2, "span": 8, "y": 310},
+        {"type": "button", "id": "continue", "variant": "brand", "text": "Continue", "col": 8, "span": 2, "y": 370, "action": "/job-type"}
+      ],
+      "states": {
+        "location.denied": {"hint": "Type to search your address"},
+        "address.ambiguous": {"modal": "Select the correct address"}
+      }
+    },
+
+    {
+      "id": "job_type",
+      "route": "/job-type",
+      "title": "Job Type",
+      "purpose": "Scope compliance by work being performed",
+      "components": [
+        {"type": "heading", "id": "h1", "text": "What are you doing at this property?", "col": 2, "span": 8, "y": 80},
+        {"type": "chips_multi", "id": "jobs", "items": ["Kitchen remodel", "Bathroom remodel", "Bedroom conversion (egress)", "Electrical update", "Plumbing update", "Accessibility changes", "General repairs"], "col": 2, "span": 8, "y": 140},
+        {"type": "button", "id": "continue", "variant": "brand", "text": "Continue", "col": 8, "span": 2, "y": 260, "action": "/capture-or-upload"}
+      ],
+      "states": {
+        "jobs.none": {"tooltip": "Select at least one (or choose General)"}
+      }
+    },
+
+    {
+      "id": "capture",
+      "route": "/capture",
+      "title": "LiDAR Capture",
+      "purpose": "Room‑by‑room scanning with coverage guidance",
+      "components": [
+        {"type": "tutorial_strip", "id": "tips", "items": ["Start in biggest room", "Walk perimeter", "Hold steady at chest height"], "y": 0, "col": 1, "span": 12},
+        {"type": "hud", "id": "capture_hud", "elements": [
+          {"name": "coverage", "metric": "%"},
+          {"name": "guidance_line"},
+          {"name": "corner_anchors"},
+          {"name": "door_button"},
+          {"name": "window_button"},
+          {"name": "pause_resume"}
+        ], "y": 64, "col": 1, "span": 12},
+        {"type": "cta", "id": "finish_room", "text": "Mark room done", "anchor": "bottom"},
+        {"type": "cta", "id": "finish_floor", "text": "Finish floor", "anchor": "bottom"}
+      ],
+      "states": {
+        "confidence.low": {"toast": "One more pass along the highlighted wall"},
+        "no_lidar": {"banner": "No LiDAR detected — invite a teammate or upload a scan"}
+      },
+      "transitions": {
+        "onFinish": "/processing"
+      }
+    },
+
+    {
+      "id": "upload",
+      "route": "/upload",
+      "title": "Upload a Scan",
+      "purpose": "Validate and process imported LiDAR/RoomPlan files",
+      "components": [
+        {"type": "dropzone", "id": "dz", "accept": [".usdz", ".json", ".e57", ".laz", ".las", ".ply"], "col": 2, "span": 8, "y": 120},
+        {"type": "file_badge", "id": "file_info", "text": "RoomPlan USDZ • 24MB • Good coverage", "col": 2, "span": 8, "y": 260},
+        {"type": "button", "id": "process", "variant": "brand", "text": "Process", "col": 8, "span": 2, "y": 320, "action": "/processing"}
+      ],
+      "states": {
+        "file.unsupported": {"modal": "How to export an accepted format"}
+      }
+    },
+
+    {
+      "id": "processing",
+      "route": "/processing",
+      "title": "Processing",
+      "purpose": "Transparent progress (no mystery spinner)",
+      "components": [
+        {"type": "stepper", "id": "steps", "stages": ["Align", "2D", "Snap", "Dimension", "Label"], "col": 2, "span": 8, "y": 140},
+        {"type": "progress", "id": "percent", "value": 0, "eta": "~10s", "col": 2, "span": 8, "y": 200}
+      ],
+      "transitions": {"onComplete": "/plan-review"},
+      "states": {"flag.issues": {"note": "We’ll show 2 spots to review"}}
+    },
+
+    {
+      "id": "plan_review",
+      "route": "/plan-review",
+      "title": "Plan Review",
+      "purpose": "Inspect 2D plan and fix small issues quickly",
+      "components": [
+        {"type": "canvas2d", "id": "plan", "tools": ["select", "nudge", "addDoor", "addWindow"], "col": 2, "span": 8, "y": 120},
+        {"type": "panel_right", "id": "info", "sections": ["rooms", "dimensions", "confidence"], "col": 10, "span": 2, "y": 120},
+        {"type": "button", "id": "continue", "variant": "brand", "text": "Continue", "anchor": "bottom", "action": "/compliance"}
+      ],
+      "states": {
+        "confidence.low_zones": {"toggle": "Highlight areas to review"}
+      }
+    },
+
+    {
+      "id": "compliance",
+      "route": "/compliance",
+      "title": "Compliance Overlay",
+      "purpose": "Job-scoped rules mapped to the plan",
+      "components": [
+        {"type": "canvas2d", "id": "plan_with_pins", "col": 2, "span": 8, "y": 120},
+        {"type": "panel_right", "id": "rules", "filters": ["category", "severity", "failsOnly"], "list": "rules[] {excerpt, status, source, updatedAt}", "col": 10, "span": 2, "y": 120},
+        {"type": "summary_bar", "id": "summary", "metrics": ["pass", "fail", "pending"], "anchor": "top"},
+        {"type": "button", "id": "continue", "variant": "brand", "text": "Continue", "anchor": "bottom", "action": "/resolve"}
+      ],
+      "states": {
+        "jurisdiction.loading": {"banner": "City rules loading… showing State rules first"},
+        "jurisdiction.missing": {"banner": "Help us pick the right city?"},
+        "conflict": {"note": "Local overrides State (why?)"}
+      }
+    },
+
+    {
+      "id": "resolve",
+      "route": "/resolve",
+      "title": "Resolve & Notes",
+      "purpose": "Turn findings into actions",
+      "components": [
+        {"type": "rule_list", "id": "rule_items", "actions": ["Resolve", "Add Note", "Assign"], "col": 2, "span": 8, "y": 120},
+        {"type": "button", "id": "export_cta", "variant": "brand", "text": "Export", "anchor": "bottom", "action": "/export"}
+      ],
+      "states": {
+        "no_teammates": {"inline_add": "Invite by email (view-only for lenders)"}
+      }
+    },
+
+    {
+      "id": "export",
+      "route": "/export",
+      "title": "Export",
+      "purpose": "Generate lender/GC/owner PDFs with versioning",
+      "components": [
+        {"type": "presets", "id": "preset_switch", "items": ["Lender PDF", "GC PDF", "Owner PDF"], "col": 2, "span": 8, "y": 120},
+        {"type": "thumbnails", "id": "preview", "pages": ["Cover", "Plan", "Checklist", "Notes"], "col": 2, "span": 8, "y": 180},
+        {"type": "button", "id": "export_btn", "variant": "brand", "text": "Export", "col": 8, "span": 2, "y": 360, "action": "/project"}
+      ],
+      "states": {
+        "pending.exists": {"watermark": "Draft", "tooltip": "Some items are pending verification"}
+      }
+    },
+
+    {
+      "id": "project",
+      "route": "/project",
+      "title": "Project Home",
+      "purpose": "Single source of truth: timeline, versions, outstanding items",
+      "components": [
+        {"type": "timeline", "id": "events", "items": "scan → process → 4 rules flagged → 2 resolved → Export v1", "col": 2, "span": 8, "y": 120},
+        {"type": "cards", "id": "quick_actions", "items": ["Rescan", "Add job type", "Duplicate", "Invite lender (view-only)"], "col": 10, "span": 2, "y": 120}
+      ]
+    }
+  ]
+}

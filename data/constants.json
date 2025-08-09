@@ -1,0 +1,20 @@
+{
+  "grid": {"columns": 12, "gutter": 16, "containerWidths": {"mobile": 360, "tablet": 768, "desktop": 1280}},
+  "breakpoints": {"mobile": 360, "tablet": 768, "desktop": 1280},
+  "tokens": {
+    "colors": {
+      "bg": {"default": "#0B1220", "panel": "#111827", "elev": "#0F172A", "surface": "#FFFFFF"},
+      "ink": {"900": "#0F172A", "700": "#334155", "500": "#64748B"},
+      "brand": {"600": "#2563EB", "700": "#1D4ED8"},
+      "status": {"pass": "#16A34A", "fail": "#DC2626", "pending": "#D97706"}
+    },
+    "radius": {"sm": 8, "md": 12, "lg": 16},
+    "spacing": {"xs": 8, "sm": 12, "md": 16, "lg": 24, "xl": 32},
+    "typography": {"ui": {"family": "Inter", "sizes": {"sm": 12, "md": 14, "lg": 16, "xl": 20, "xxl": 24}}}
+  },
+  "a11y": {"touchTarget": 44, "contrast": "AA", "keyboard": true, "reducedMotion": true},
+  "persistent": {
+    "projectHeader": ["address", "jurisdictionChips", "jobTypeChips"],
+    "bottomBar": ["undo", "redo", "nudge", "addDoor", "addWindow", "continue"]
+  }
+}
